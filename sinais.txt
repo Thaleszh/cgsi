@@ -1,0 +1,61 @@
+Sinais:
+
+gerais
+
+    cancel
+        fecha janela enviada
+
+
+add_obj_window
+
+    add_object
+        Pegar nome de "name_entry" da add_obj_window
+        Ver qual aba esta selecionada no obj_tab, em ordem sao: Ponto, linha e poligono.
+        Pegar x_entry, y_entry se for um ponto
+        Pegar x1_line, x2_line, y1_line e y2_line se for uma reta
+        Pegar string x_poli, y_poli se for um poligono. Pode decidir como tratamos a string
+        gerar objeto na lista e adicionar um objeto na object_list, com nome ou tipo. Ou so dar um refresh
+        fecha add_obj_window
+
+aplication_window
+
+    zoom_in
+        pegar % de zoom do step_item
+        aplicar zoom na conversao da jabela (usa um zoom_factor no intermedio)
+
+    zoom_out
+        idem ao anterior
+
+    up_but_clicked, down_but_clicked, left_but_clicked, right_but_clicked
+        pegar valor do step_item
+        aplicar movimentaçao na janela
+        dar refresh no draw_area (faz uma funcao refresh pra isso)
+
+    object_clicked
+        verifica se botao direito (==3)
+        abre um popup com o obj_right_click_menu
+
+
+obj_right_click_menu
+
+    delete_item
+        pegar o item em foco na tree_view_object_list
+        deletar o item
+        atualizar tela e lista
+
+    create_item
+        abrir add_obj_window
+
+    modify_item (invisivel, entrega II)
+        abrir modification_dialog
+
+
+modification_dialog (entrega II)
+
+    modify
+        pega valores de x_translation, y_translation, x_scale, y_scale e angle_entry
+        faz uma matriz com as modifcaçoes disso
+        aplica matriz ao objeto do tree_view_object_list selecionado
+        refresh na tela
+        (fecha aba? pode deixar aberto pra por de lado e modificar de novo)
+
