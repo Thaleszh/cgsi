@@ -5,18 +5,19 @@ import control
 
 class UI:
     def __init__(self):
-        # builder.add_from_file('pytaca/add_obj_window.glade')
-        # builder.add_from_file('pytaca/obj_right_click_menu.glade')
-        # builder.add_from_file('pytaca/modification_dialog.glade')
-        builder = Gtk.Builder()
-        builder.add_from_file('pytaca/pytaca_1.glade')
+        # builder.add_from_file('cgsi/add_obj_window.glade')
+        # builder.add_from_file('cgsi/obj_right_click_menu.glade')
+        # builder.add_from_file('cgsi/modification_dialog.glade')
+        self.builder = Gtk.Builder()
+        self.builder.add_from_file('cgsi/cgsi_1.glade')
 
-        # self.add_object_window = builder.get_object('add_obj_window')
-        self.right_click_menu = builder.get_object('obj_right_click_menu')
-        # self.modification_dialog = builder.get_object('modification_dialog')
-        self.main_window = builder.get_object('applicationwindow')
+        self.add_object_window = self.builder.get_object('add_obj_window')
+        self.modification_dialog = self.builder.get_object('modification_dialog')
+        self.main_window = self.builder.get_object('application_window')
+        self.step_item = self.builder.get_object('step_item')
 
-        # builder.connect_signals(self)
+
+        self.builder.connect_signals(self)
         self.main_window.connect('destroy', Gtk.main_quit)
         self.main_window.show()
 
@@ -26,21 +27,7 @@ class UI:
         fecha janela enviada
         """
         for arg in args:
-            print('cancel', arg, ', '.join(dir(arg)))
-
-    # AddObjectHandler
-    def add_object(self, *args):
-        """
-        Pegar nome de "name_entry" da add_obj_window
-        Ver qual aba esta selecionada no obj_tab, em ordem sao: Ponto, linha e poligono.
-        Pegar x_entry, y_entry se for um ponto
-        Pegar x1_line, x2_line, y1_line e y2_line se for uma reta
-        Pegar string x_poli, y_poli se for um poligono. Pode decidir como tratamos a string
-        gerar objeto na lista e adicionar um objeto na object_list, com nome ou tipo. Ou so dar um refresh
-        fecha add_obj_window
-        """
-        for arg in args:
-            print('add_object', arg, ', '.join(dir(arg)))
+            arg.hide()
 
     # ApplicationHandler
     def zoom_in(self, *args):
@@ -48,16 +35,18 @@ class UI:
         pegar % de zoom do step_item
         aplicar zoom na conversao da jabela(usa um zoom_factor no intermedio)
         """
+        text = self.step_item.get_text()
         for arg in args:
-            print('zoom_in', arg, ', '.join(dir(arg)))
+            print('zoom_in ' + text)
 
     def zoom_out(self, *args):
         """
         pegar % de zoom do step_item
         aplicar zoom na conversao da jabela(usa um zoom_factor no intermedio)
         """
+        text = self.step_item.get_text()
         for arg in args:
-            print('zoom_out', arg, ', '.join(dir(arg)))
+            print('zoom_out')
 
     def up_but_clicked(self, *args):
         """
@@ -65,8 +54,9 @@ class UI:
         aplicar movimentaçao na janela
         dar refresh no draw_area(faz uma funcao refresh pra isso)
         """
+        text = self.step_item.get_text()
         for arg in args:
-            print('up_but_clicked', arg, ', '.join(dir(arg)))
+            print('up_but_clicked')
 
     def down_but_clicked(self, *args):
         """
@@ -74,8 +64,9 @@ class UI:
         aplicar movimentaçao na janela
         dar refresh no draw_area(faz uma funcao refresh pra isso)
         """
+        text = self.step_item.get_text()
         for arg in args:
-            print('down_but_clicked', arg, ', '.join(dir(arg)))
+            print('down_but_clicked')
 
     def left_but_clicked(self, *args):
         """
@@ -83,8 +74,9 @@ class UI:
         aplicar movimentaçao na janela
         dar refresh no draw_area(faz uma funcao refresh pra isso)
         """
+        text = self.step_item.get_text()
         for arg in args:
-            print('left_but_clicked', arg, ', '.join(dir(arg)))
+            print('left_but_clicked')
 
     def right_but_clicked(self, *args):
         """
@@ -92,8 +84,9 @@ class UI:
         aplicar movimentaçao na janela
         dar refresh no draw_area(faz uma funcao refresh pra isso)
         """
+        text = self.step_item.get_text()
         for arg in args:
-            print('right_but_clicked', arg, ', '.join(dir(arg)))
+            print('right_but_clicked')
 
     def object_clicked(self, treeview, event):
         """
@@ -102,9 +95,20 @@ class UI:
         """
         if event.button != 3:
             return 
-        right_click_menu.set_relative_to(event)
-        right_click_menu.show_all()
-        right_click_menu.popup()
+        self.right_click_menu = self.builder.get_object('obj_right_click_menu')
+        self.right_click_menu.popup(None, None, None, None, event.button, event.time)
+
+
+
+    def object_click(self, treeview, event):
+        """
+        verifica se botao direito (== 3)
+        abre um popup com o obj_right_click_menu
+        """
+        if event.button != 3:
+            return 
+        for arg in args:
+            print('object_clicked')
 
     def draw(self, drawing_area, context):
         context.set_source_rgb(1, 1, 0)
@@ -131,22 +135,40 @@ class UI:
         atualizar tela e lista
         """
         for arg in args:
-            print('delete_item', arg, ', '.join(dir(arg)))
+            print('delete_item')
 
     def create_item(self, *args):
         """
         abrir add_obj_window
         """
+        
+        self.add_object_window.show()
+
+
+    # AddObjectHandler
+    def add_object(self, *args):
+        """
+        Pegar nome de "name_entry" da add_obj_window
+        Ver qual aba esta selecionada no obj_tab, em ordem sao: Ponto, linha e poligono.
+        Pegar x_entry, y_entry se for um ponto
+        Pegar x1_line, x2_line, y1_line e y2_line se for uma reta
+        Pegar string x_poli, y_poli se for um poligono. Pode decidir como tratamos a string
+        gerar objeto na lista e adicionar um objeto na object_list, com nome ou tipo. Ou so dar um refresh
+        fecha add_obj_window
+        """
+        name_entry = self.builder.get_object("name_entry")
+        name = name_entry.get_text()
         for arg in args:
-            print('create_item', arg, ', '.join(dir(arg)))
+            print('add_object ' + name)
+        self.cancel(self.add_object_window)
+
 
     def modify_item(self, *args):
         """
         (invisivel, entrega II)
         abrir modification_dialog
         """
-        for arg in args:
-            print('modify_item', arg, ', '.join(dir(arg)))
+        self.modification_dialog.show()
 
     # ModificationDialogHandler
     def modify(self, *args):
@@ -158,7 +180,7 @@ class UI:
         (fecha aba? pode deixar aberto pra por de lado e modificar de novo)
         """
         for arg in args:
-            print('modify', arg, ', '.join(dir(arg)))
+            print('modify')
 
 
 def run():
