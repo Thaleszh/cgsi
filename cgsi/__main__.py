@@ -16,6 +16,8 @@ class UI:
         self.main_window = self.builder.get_object('application_window')
         self.step_item = self.builder.get_object('step_item')
         self.drawing_area = self.builder.get_object('viewport')
+        self.list = self.builder.get_object('object_list')
+        self.tree_view = self.builder.get_object('tree_view_object_list')
 
 
         self.builder.connect_signals(self)
@@ -24,6 +26,10 @@ class UI:
         # init do controle
         # self.control = control.control(drawing_area, context)
         self.control = ct.control()
+        for obj in self.control.obj_list:
+        	self.list.append([obj, self.control.obj_list[obj].type])
+
+
         self.main_window.show()
 
     # WindowHandler
@@ -132,6 +138,11 @@ class UI:
         """
         for arg in args:
             print('delete_item')
+        (model, it) = self.tree_view.get_selection().get_selected_rows()
+        iterator = model.get_iter(it[0])
+        name = model.get_value(iterator, 0)
+        model.remove(iterator)
+        self.control.delete_shape(name)
         self.refresh()
 
     def create_item(self, *args):
@@ -162,13 +173,13 @@ class UI:
 
         coordinates = []
         if page == 0:
-            shape = "point"
+            shape = "Ponto"
             x_entry = self.builder.get_object("x_point")
             y_entry = self.builder.get_object("y_point")
 
             coordinates = [[int(x_entry.get_text()), int(y_entry.get_text())]]
         elif page == 1:
-            shape = "line"
+            shape = "Linha"
             x1_entry = self.builder.get_object("x1_line")
             y1_entry = self.builder.get_object("y1_line")
             x2_entry = self.builder.get_object("x2_line")
@@ -176,7 +187,7 @@ class UI:
             coordinates = [[int(x1_entry.get_text()), int(y1_entry.get_text())],
                             [int(x2_entry.get_text()), int(y2_entry.get_text())] ]
         else:
-            shape = "poli"
+            shape = "Poligono"
             x_entry = self.builder.get_object("x_poli")
             y_entry = self.builder.get_object("y_poli")
             # removes spaces and splits on commas
@@ -187,6 +198,7 @@ class UI:
                 coordinates.append([int(x), int(y)])
 
         self.control.create_shape(name, shape, coordinates)
+        self.list.append([name, shape])
         # to do: resetar campos
         # fecha janela
         self.cancel(self.add_object_window)

@@ -103,9 +103,9 @@ class control:
 		# check what object is to be made
 		print("created object at:") 
 		print(coordinates)
-		if shape == "point":
+		if shape == "Ponto":
 			obj = shapes.point(coordinates)
-		elif shape == "line":
+		elif shape == "Linha":
 			obj = shapes.line(coordinates)
 		else:
 			obj = shapes.polygon(coordinates)
