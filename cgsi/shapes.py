@@ -1,10 +1,14 @@
 class shape:
 	def coordinates(self):
-		return null
+		return None
 
 class point(shape):
 	def __init__(self, coordinates):
 		self.coordinates = [coordinates[0]]
+
+class line(shape):
+	def __init__(self, coordinates):
+		self.coordinates = coordinates[0:2]
 
 class rectangle(shape):
 	def __init__(self, coordinates):
