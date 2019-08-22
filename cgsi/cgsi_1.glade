@@ -857,6 +857,7 @@
     </child>
     <child>
       <object class="GtkMenuItem" id="modify_item_button">
+        <property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="label" translatable="yes">Modificar</property>
         <property name="use_underline">True</property>
@@ -868,21 +869,10 @@
   <object class="GtkListStore" id="object_list">
     <columns>
       <!-- column-name Nome -->
-      <column type="&lt; define a new column &gt;"/>
+      <column type="gchararray"/>
       <!-- column-name Tipo -->
-      <column type="Tipo"/>
+      <column type="gchararray"/>
     </columns>
-    <data>
-      <row/>
-      <row/>
-      <row/>
-      <row/>
-      <row/>
-      <row/>
-      <row/>
-      <row/>
-      <row/>
-    </data>
   </object>
   <object class="GtkAdjustment" id="step_adjust">
     <property name="upper">100</property>
