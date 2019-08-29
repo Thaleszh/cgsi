@@ -14,11 +14,11 @@ class UI:
         self.add_object_window = self.builder.get_object('add_obj_window')
         self.modification_dialog = self.builder.get_object('modification_dialog')
         self.main_window = self.builder.get_object('application_window')
+        self.warning_dialog = self.builder.get_object('warning_dialog')
         self.step_item = self.builder.get_object('step_item')
         self.drawing_area = self.builder.get_object('viewport')
         self.list = self.builder.get_object('object_list')
         self.tree_view = self.builder.get_object('tree_view_object_list')
-
 
         self.builder.connect_signals(self)
         self.main_window.connect('destroy', Gtk.main_quit)
@@ -167,6 +167,12 @@ class UI:
         """
         name_entry = self.builder.get_object("name_entry")
         name = name_entry.get_text()
+        if name in self.control.obj_list:
+            return self.show_warning(
+                'Nome inválido',
+                'Um objeto come esse nome já existe'
+            )
+
         for arg in args:
             print('add_object ' + name)
         tab = self.builder.get_object("object_tab")
@@ -229,6 +235,13 @@ class UI:
             print('modify')
         self.refresh()
 
+
+    def show_warning(self, title, text):
+        title_label = self.builder.get_object('warning_dialog_title')
+        title_label.set_text(title)
+        text_label = self.builder.get_object('warning_dialog_text')
+        text_label.set_text(text)
+        self.warning_dialog.show()
 
 def run():
     UI()
