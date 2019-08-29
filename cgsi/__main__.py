@@ -26,8 +26,9 @@ class UI:
         # init do controle
         # self.control = control.control(drawing_area, context)
         self.control = ct.control()
-        for obj in self.control.obj_list:
-        	self.list.append([obj, self.control.obj_list[obj].type])
+
+        self.control.create_shape("start 1", "poli", [ [50, 200],[100, 200], [100, 250], [50,250]])
+        self.list.append(["start 1", "Poligono"])
 
 
         self.main_window.show()

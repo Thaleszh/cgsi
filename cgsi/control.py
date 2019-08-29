@@ -40,9 +40,6 @@ class control:
 		self.obj_list = {}
 		# future alter egos: self.alter_egos = {}
 
-		# starter objects
-		self.create_shape("start 1", "poli", [ [50, 200],[100, 200], [100, 250], [50,250]])
-
 	def zoom(self, ammount):
 		self.window.zoom(ammount)
 
