@@ -30,6 +30,8 @@ class UI:
         self.control.create_shape("start 1", "poli", [ [50, 200],[100, 200], [100, 250], [50,250]])
         self.list.append(["start 1", "Poligono"])
 
+        self.control.scale_object("start 1", 2, 1)
+        self.control.rotate_object("start 1", 90)
 
         self.main_window.show()
 
@@ -231,8 +233,40 @@ class UI:
         refresh na tela
         (fecha aba? pode deixar aberto pra por de lado e modificar de novo)
         """
-        for arg in args:
-            print('modify')
+        (model, it) = self.tree_view.get_selection().get_selected_rows()
+        iterator = model.get_iter(it[0])
+        name = model.get_value(iterator, 0)
+
+        tab = self.builder.get_object("object_tab")
+        # page = tab.get_current_page()
+        # assumo as tres operaçoes
+        x_trans_entry = self.builder.get_object("x_translation").get_text()
+        if (x_trans_entry == ""):
+        	x_trans = "0"
+        x_trans = float(x_trans_entry)
+
+        y_trans_entry = self.builder.get_object("y_translation").get_text()
+        if (y_trans_entry == ""):
+        	y_trans = "0"
+        y_trans = float(y_trans_entry)
+
+        x_scale_entry = self.builder.get_object("x_scale").get_text().replace(",", ".")
+        if (x_scale_entry == ""):
+        	x_scale = "1"
+        x_scale = float(x_scale_entry)
+
+        y_scale_entry = self.builder.get_object("y_scale").get_text().replace(",", ".")
+        if (y_scale_entry == ""):
+        	y_scale = "1"
+        y_scale = float(y_scale_entry)
+
+        teta_entry = self.builder.get_object("angle_entry").get_text()
+        if (teta_entry == ""):
+        	teta = "0"
+        teta = float(teta_entry)
+
+
+        self.control.translate_scale_rotate(name, x_trans, y_trans, x_scale, y_scale, teta)
         self.refresh()
 
 
