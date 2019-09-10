@@ -58,10 +58,10 @@ class control:
 		da_height = drawing_area.get_allocation().height
 		for i, coordinate in enumerate(coordinates):
 			# (X - Xwmin) * (Xvpmax - Xvpmin) / (Xwmax - Xwmin)
-			coordinates[i][0] = ((coordinate[0] - self.window.position[0]) * 
+			coordinates[i][0] = ((coordinate[0] - self.window.position[0]) *
 								da_width / self.window.get_width())
 			# (1 - (Y - Ywmin) / (Ywmax - Ywmin)) * (Yvpmax - Yvpmin)
-			coordinates[i][1] = (1 - (coordinate[1] - self.window.position[1]) / 
+			coordinates[i][1] = (1 - (coordinate[1] - self.window.position[1]) /
 								self.window.get_height()) * da_height
 
 		return coordinates
@@ -69,7 +69,7 @@ class control:
 
 	def create_shape(self, name, shape, coordinates):
 		# check what object is to be made
-		print("created object at:") 
+		print("created object at:")
 		print(coordinates)
 		if shape == "Ponto":
 			obj = shapes.point(coordinates)
@@ -97,39 +97,28 @@ class control:
 		change_matrix = trans.matrix_translate(change_matrix, x, y)
 
 		# update coordinates
-		trans.change_object(obj, change_matrix)		
-
-	def rotate_object(self, name, teta, point=[0, 0]):
-		# get object
-		obj = self.obj_list[name]
-		# find matrix to translate it to point
-		to_center, back_to_place = trans.matrixes_obj_to_point(obj, point)
-		# make change matrix
-		change_matrix = trans.matrix_rotation(to_center, teta)
-		change_matrix = np.matmul(change_matrix, back_to_place)
-
-		# update coordinates
 		trans.change_object(obj, change_matrix)
 
-	def scale_object(self, name, x, y, point=[0, 0]):
-		# get object
+	def rotate_object(self, name, teta, rotation, point=[0,0]):
 		obj = self.obj_list[name]
-		# find matrix to translate it to point
-		to_center, back_to_place = trans.matrixes_obj_to_point(obj, point)
-		# make change matrix
-		change_matrix = trans.matrix_scale(to_center, x, y)
-		change_matrix = np.matmul(change_matrix, back_to_place)
 
-		# update coordinates
+		if rotation == trans.ROTATE_AROUND_SELF:
+			obj_center = trans.find_center(obj)
+			change_matrix = trans.matrix_rotation(teta, obj_center)
+		elif rotation == trans.ROTATE_AROUND_CENTER:
+			change_matrix = trans.matrix_rotation(teta, (0, 0))
+		elif rotation == trans.ROTATE_AROUND_POINT:
+			change_matrix = trans.matrix_rotation(teta, point)
+
+		trans.change_object(obj, change_matrix)
+
+	def scale_object(self, name, x, y):
+		obj = self.obj_list[name]
+		change_matrix = trans.matrix_scale(obj, x, y)
 		trans.change_object(obj, change_matrix)
 
 	def translate_object(self, name, x, y):
-		base_matrix = np.matrix([[1,0,0],
-								 [0,1,0],
-								 [0,0,1]])
-		# make change matrix
-		change_matrix = trans.matrix_translate(base_matrix, x, y)
-		# update coordinates
+		change_matrix = trans.matrix_translate(x, y)
 		trans.change_object(self.obj_list[name], change_matrix)
 
 

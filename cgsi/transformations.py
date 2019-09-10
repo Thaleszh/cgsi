@@ -2,6 +2,12 @@ import math
 import shapes
 import numpy as np
 
+
+ROTATE_AROUND_SELF = 0
+ROTATE_AROUND_CENTER = 1
+ROTATE_AROUND_POINT = 2
+
+
 def change_object(obj, change_matrix):
 	# get all coordinates reference
 	# print(change_matrix)
@@ -16,7 +22,7 @@ def change_object(obj, change_matrix):
 
 def matrixes_obj_to_point(obj, point):
 	# get center coordinates of thing
-	x, y = find_center(obj) 
+	x, y = find_center(obj)
 	# find translation vector
 	x_translation = (point[0] - x)
 	y_translation = (point[1] - y)
@@ -32,6 +38,7 @@ def matrixes_obj_to_point(obj, point):
 	# print(back_to_place)
 	return [to_center, back_to_place]
 
+
 def find_center(obj):
 	x_center = 0
 	y_center = 0
@@ -46,27 +53,35 @@ def find_center(obj):
 	return [x_center, y_center]
 
 
-def matrix_translate(matrix, x, y):
+def matrix_translate(x, y):
 	translation = np.matrix([[1, 0, 0],
 							 [0, 1, 0],
 							 [x, y, 1]])
-	return np.matmul(matrix, translation)
+	return translation
 
-def matrix_scale(matrix, x, y):
+
+def matrix_scale(obj, x, y):
+	origin = find_center(obj)
+	to_center = matrix_translate(-origin[0], -origin[1])
 	scaling = np.matrix([ [x, 0, 0],
 						  [0, y, 0],
 						  [0, 0, 1]])
-	# print("Scale Matrix:")
-	# print(scaling)
-	return np.matmul(matrix, scaling)
+	to_origin = matrix_translate(origin[0], origin[1])
 
-def matrix_rotation(matrix, teta):
+	matrix = np.matmul(to_center, scaling)
+	matrix = np.matmul(matrix, to_origin)
+	return matrix
+
+
+def matrix_rotation(teta, point):
 	# covert to radians
 	radian = np.deg2rad(teta)
-	# print(radian)
+	to_center = matrix_translate(-point[0], -point[1])
 	rotation = np.matrix([[math.cos(radian), -math.sin(radian), 0],
 						  [math.sin(radian),  math.cos(radian), 0],
 						  [0		,  0		, 1]])
-	# print("Rotation:")
-	# print(rotation)
-	return np.matmul(matrix, rotation)
+	to_origin = matrix_translate(point[0], point[1])
+
+	matrix = np.matmul(to_center, rotation)
+	matrix = np.matmul(matrix, to_origin)
+	return matrix

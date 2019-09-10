@@ -1,6 +1,8 @@
-from gi.repository import Gtk
 import cairo
+from gi.repository import Gtk
+
 import control as ct
+import transformations as trans
 
 
 class UI:
@@ -22,7 +24,7 @@ class UI:
 
         self.builder.connect_signals(self)
         self.main_window.connect('destroy', Gtk.main_quit)
-        
+
         # init do controle
         # self.control = control.control(drawing_area, context)
         self.control = ct.control()
@@ -31,7 +33,7 @@ class UI:
         self.list.append(["start 1", "Poligono"])
 
         self.control.scale_object("start 1", 2, 1)
-        self.control.rotate_object("start 1", 90)
+        self.control.rotate_object("start 1", 90, trans.ROTATE_AROUND_SELF)
 
         self.main_window.show()
 
@@ -110,7 +112,7 @@ class UI:
         abre um popup com o obj_right_click_menu
         """
         if event.button != 3:
-            return 
+            return
         self.right_click_menu = self.builder.get_object('obj_right_click_menu')
         self.right_click_menu.popup(None, None, None, None, event.button, event.time)
 
@@ -122,7 +124,7 @@ class UI:
         abre um popup com o obj_right_click_menu
         """
         if event.button != 3:
-            return 
+            return
         for arg in args:
             print('object_clicked')
 
@@ -152,7 +154,7 @@ class UI:
         """
         abrir add_obj_window
         """
-        
+
         self.add_object_window.show()
 
 
@@ -237,36 +239,33 @@ class UI:
         iterator = model.get_iter(it[0])
         name = model.get_value(iterator, 0)
 
-        tab = self.builder.get_object("object_tab")
-        # page = tab.get_current_page()
-        # assumo as tres operaçoes
-        x_trans_entry = self.builder.get_object("x_translation").get_text()
-        if (x_trans_entry == ""):
-        	x_trans = "0"
-        x_trans = float(x_trans_entry)
+        modification_tab = self.builder.get_object('modification_tab')
+        page = modification_tab.get_current_page()
+        if page == 0:
+            x = int(self.builder.get_object("translation_x").get_text())
+            y = int(self.builder.get_object("translation_y").get_text())
+            self.control.translate_object(name, x, y)
+        elif page == 1:
+            x = float(self.builder.get_object("scale_x").get_text().replace(',', '.'))
+            y = float(self.builder.get_object("scale_y").get_text().replace(',', '.'))
+            self.control.scale_object(name, x, y)
+        elif page == 2:
+            angle = int(self.builder.get_object("rotation_angle").get_text())
 
-        y_trans_entry = self.builder.get_object("y_translation").get_text()
-        if (y_trans_entry == ""):
-        	y_trans = "0"
-        y_trans = float(y_trans_entry)
+            around_self = self.builder.get_object("rotation_self").get_active()
+            around_center = self.builder.get_object("rotation_center").get_active()
+            around_point = self.builder.get_object("rotation_point").get_active()
+            if around_self:
+                self.control.rotate_object(name, angle, trans.ROTATE_AROUND_SELF)
+            elif around_center:
+                self.control.rotate_object(name, angle, trans.ROTATE_AROUND_CENTER)
+            elif around_point:
+                x = int(self.builder.get_object("rotation_x").get_text())
+                y = int(self.builder.get_object("rotation_y").get_text())
+                self.control.rotate_object(
+                    name, angle, trans.ROTATE_AROUND_POINT, (x, y)
+                )
 
-        x_scale_entry = self.builder.get_object("x_scale").get_text().replace(",", ".")
-        if (x_scale_entry == ""):
-        	x_scale = "1"
-        x_scale = float(x_scale_entry)
-
-        y_scale_entry = self.builder.get_object("y_scale").get_text().replace(",", ".")
-        if (y_scale_entry == ""):
-        	y_scale = "1"
-        y_scale = float(y_scale_entry)
-
-        teta_entry = self.builder.get_object("angle_entry").get_text()
-        if (teta_entry == ""):
-        	teta = "0"
-        teta = float(teta_entry)
-
-
-        self.control.translate_scale_rotate(name, x_trans, y_trans, x_scale, y_scale, teta)
         self.refresh()
 
 
