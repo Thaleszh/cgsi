@@ -157,7 +157,6 @@ class UI:
 
         self.add_object_window.show()
 
-
     # AddObjectHandler
     def add_object(self, *args):
         """
@@ -176,6 +175,7 @@ class UI:
                 'Nome inválido',
                 'Um objeto come esse nome já existe'
             )
+        color_rgba = self.builder.get_object('add_obj_color').get_rgba()
 
         for arg in args:
             print('add_object ' + name)
@@ -208,14 +208,12 @@ class UI:
             for x, y in zip(x_entries, y_entries):
                 coordinates.append([int(x), int(y)])
 
-        self.control.create_shape(name, shape, coordinates)
+        self.control.create_shape(name, shape, coordinates, color_rgba)
         self.list.append([name, shape])
         # to do: resetar campos
         # fecha janela
         self.cancel(self.add_object_window)
         self.refresh()
-
-
 
     def modify_item(self, *args):
         """
@@ -267,7 +265,6 @@ class UI:
                 )
 
         self.refresh()
-
 
     def show_warning(self, title, text):
         title_label = self.builder.get_object('warning_dialog_title')

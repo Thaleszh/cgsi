@@ -1,25 +1,20 @@
 class shape:
-	def coordinates(self):
-		return None
+	def __init__(self, coordinates, rgba=(0,0,0,1)):
+		self.coordinates = coordinates
+		self.rgba = rgba
+
 
 class point(shape):
-	def __init__(self, coordinates):
-		self.coordinates = [coordinates[0]]
+	pass
+
 
 class line(shape):
-	def __init__(self, coordinates):
-		self.coordinates = coordinates[0:2]
+	pass
 
-class rectangle(shape):
-	def __init__(self, coordinates):
-		self.coordinates = coordinates[0:4]
-
-	def coordinates(self):
-		return coordinates
 
 class polygon(shape):
-	def __init__(self, coordinates):
-		self.coordinates = coordinates
+	pass
+
 
 if __name__ == '__main__':
     rect = rectangle([[0,0],[1,0],[1,1],[0,1]])
