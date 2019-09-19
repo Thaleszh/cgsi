@@ -3,10 +3,10 @@ class window:
 		self.width = width
 		self.height = height
 		self.position = [0.0, 0.0]
-		self.view_up = [0.0, height]
+		self.view_up = [0.0, 1.0]
 		self.scale = 1.0
 		self.position_ppc = [0.0, 0.0]
-		self.view_up_ppc = [0.0, height]
+		self.view_up_ppc = [0.0, 1.0]
 
 	def up(self, ammount):
 		self.position[1] += ammount
@@ -30,4 +30,4 @@ class window:
 		return self.height / self.scale
 
 	def get_center(self):
-		return [self.position[0] + self.width / 2, self.position[1] + self.height / 2]
+		return [self.position[0] + (self.width / 2), self.position[1] + (self.height / 2)]

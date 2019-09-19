@@ -78,6 +78,11 @@ def matrix_rotation(teta, point):
 	# covert to radians
 	radian = np.deg2rad(teta)
 	to_center = matrix_translate(-point[0], -point[1])
+	print("Rotation:")
+	print(teta)
+	print(to_center)
+	print("")
+
 	rotation = np.matrix([[math.cos(radian), -math.sin(radian), 0],
 						  [math.sin(radian),  math.cos(radian), 0],
 						  [0		,  0		, 1]])

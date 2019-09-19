@@ -27,24 +27,33 @@ class control:
 
     def down(self, ammount):
         self.window.up(ammount)
+        self.ppc_list = {}
 
     def left(self, ammount):
         self.window.left(ammount)
+        self.ppc_list = {}
 
     def right(self, ammount):
         self.window.right(ammount)
+        self.ppc_list = {}
 
     def rotate_window(self, angle):
-        # get object
+
         center = self.window.get_center()
+        # print("center:")
+        # print(center)
         # find matrix to translate it to point
         # rotate matrix on center
-        print(angle)
-        change_matrix = trans.matrix_rotation(angle, center)
-        # print(change_matrix)
+        print("angle:" + str(angle))
+        change_matrix = trans.matrix_rotation(angle, [0,0])
+        print("change matrix:")
+        print(change_matrix)
         # update coordinates after window rotation
+        print("center before:")
+        print(self.window.get_center())
         trans.change_coordinates([self.window.position, self.window.view_up], change_matrix)
-        # print(self.window.view_up)
+        print("center after:")
+        print(self.window.get_center())
         self.calculate_ppc()
 
 
@@ -53,6 +62,7 @@ class control:
         
         # calcular matrizes de translaçao. back to place won~t be used
         change_matrix, back_to_place = trans.matrixes_obj_to_point(self.window.get_center(), [0,0])
+
 
         y_axis = [0, 1]
         up = self.window.view_up
@@ -69,8 +79,10 @@ class control:
         if costeta != 1:
             # calcular matrix com rotaçao
             teta = math.degrees(math.acos(costeta))
-            print(math.degrees(teta))
-            change_matrix = np.matmul(change_matrix, trans.matrix_rotation(-teta, [0,0]))
+            if (0 < y_axis[0] * up[1] - y_axis[1] * up[0]):
+            	teta *= -1
+            print("degrees:" + str(teta % 360))
+            change_matrix = np.matmul(change_matrix, trans.matrix_rotation(teta, [0,0]))
 
         self.ppc_matrix = change_matrix
         # calcular window com pcc
@@ -80,6 +92,8 @@ class control:
         result = np.matmul([[self.window.position[0], self.window.position[1], 1]], change_matrix)
         self.window.position_ppc[0] = result[0, 0]
         self.window.position_ppc[1] = result[0, 1]
+        print("position ppc:")
+        print(self.window.position_ppc)
         # atualizar todas as informaçoes -> deletar todos os ppc calculados
         self.ppc_list = {}
         # atualizar pccs com draw all
@@ -125,6 +139,7 @@ class control:
     def to_viewport(self, coordinates, drawing_area):
         da_width = drawing_area.get_allocation().width
         da_height = drawing_area.get_allocation().height
+
         for i, coordinate in enumerate(coordinates):
             # (X - Xwmin) * (Xvpmax - Xvpmin) / (Xwmax - Xwmin)
             coordinates[i][0] = ((coordinate[0] - self.window.position_ppc[0]) *

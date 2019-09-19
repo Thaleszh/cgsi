@@ -29,7 +29,7 @@ class UI:
         # self.control = control.control(drawing_area, context)
         self.control = ct.control()
 
-        self.control.create_shape("start 1", "poli", [ [50, 200],[100, 200], [100, 250], [50,250]])
+        self.control.create_shape("start 1", "poli", [ [200, 200],[300, 200], [300, 300], [200,300]])
         self.list.append(["start 1", "Poligono"])
         self.control.create_shape("start 2", "poli", [ [100, 200],[150, 200], [150, 250], [100,250]])
         self.list.append(["start 2", "Poligono"])
