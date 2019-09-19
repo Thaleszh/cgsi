@@ -31,9 +31,13 @@ class UI:
 
         self.control.create_shape("start 1", "poli", [ [50, 200],[100, 200], [100, 250], [50,250]])
         self.list.append(["start 1", "Poligono"])
+        self.control.create_shape("start 2", "poli", [ [100, 200],[150, 200], [150, 250], [100,250]])
+        self.list.append(["start 2", "Poligono"])
 
         self.control.scale_object("start 1", 2, 1)
         self.control.rotate_object("start 1", 90, trans.ROTATE_AROUND_SELF)
+
+        # self.control.rotate_window(-45)
 
         self.main_window.show()
 
@@ -264,6 +268,16 @@ class UI:
                     name, angle, trans.ROTATE_AROUND_POINT, (x, y)
                 )
 
+        self.refresh()
+
+    def rotate_right(self, *args):
+        text = self.step_item.get_text()
+        self.control.rotate_window(int(text))
+        self.refresh()
+
+    def rotate_left(self, *args):
+        text = self.step_item.get_text()
+        self.control.rotate_window(-1 * int(text))
         self.refresh()
 
     def show_warning(self, title, text):

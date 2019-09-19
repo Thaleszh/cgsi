@@ -7,11 +7,12 @@ ROTATE_AROUND_SELF = 0
 ROTATE_AROUND_CENTER = 1
 ROTATE_AROUND_POINT = 2
 
-
 def change_object(obj, change_matrix):
-	# get all coordinates reference
-	# print(change_matrix)
 	coordinates = obj.coordinates
+	change_coordinates(coordinates, change_matrix)
+
+def change_coordinates(coordinates, change_matrix):
+	# print(change_matrix)
 	for coordinate in coordinates:
 		# calculate new coordinates
 		result = np.matmul([[coordinate[0], coordinate[1], 1]], change_matrix)
@@ -20,9 +21,9 @@ def change_object(obj, change_matrix):
 		coordinate[1] = result[0, 1]
 
 
-def matrixes_obj_to_point(obj, point):
+def matrixes_obj_to_point(center, point):
 	# get center coordinates of thing
-	x, y = find_center(obj)
+	x, y = center[0], center[1]
 	# find translation vector
 	x_translation = (point[0] - x)
 	y_translation = (point[1] - y)
