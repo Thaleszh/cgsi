@@ -22,38 +22,37 @@ class control:
     def zoom(self, ammount):
         self.window.zoom(ammount)
 
+
     def up(self, ammount):
         self.window.down(ammount)
+        self.calculate_ppc()
 
     def down(self, ammount):
         self.window.up(ammount)
-        self.ppc_list = {}
+        self.calculate_ppc()
 
     def left(self, ammount):
         self.window.left(ammount)
-        self.ppc_list = {}
+        self.calculate_ppc()
 
     def right(self, ammount):
         self.window.right(ammount)
-        self.ppc_list = {}
+        self.calculate_ppc()
 
     def rotate_window(self, angle):
 
-        center = self.window.get_center()
-        # print("center:")
-        # print(center)
         # find matrix to translate it to point
         # rotate matrix on center
         print("angle:" + str(angle))
-        change_matrix = trans.matrix_rotation(angle, [0,0])
+        change_matrix = trans.matrix_rotation(angle, self.window.center)
         print("change matrix:")
         print(change_matrix)
         # update coordinates after window rotation
         print("center before:")
-        print(self.window.get_center())
-        trans.change_coordinates([self.window.position, self.window.view_up], change_matrix)
+        print(self.window.center)
+        trans.change_coordinates([self.window.center, self.window.view_up], change_matrix)
         print("center after:")
-        print(self.window.get_center())
+        print(self.window.center)
         self.calculate_ppc()
 
 
@@ -61,7 +60,7 @@ class control:
         # atualiza todas a cordenadas para lidar com projeçao e rotacao
         
         # calcular matrizes de translaçao. back to place won~t be used
-        change_matrix, back_to_place = trans.matrixes_obj_to_point(self.window.get_center(), [0,0])
+        change_matrix = trans.matrix_translate(-self.window.center[0], -self.window.center[1])
 
 
         y_axis = [0, 1]
@@ -89,11 +88,6 @@ class control:
         result = np.matmul([[self.window.view_up[0], self.window.view_up[1], 1]], change_matrix)
         self.window.view_up_ppc[0] = result[0, 0]
         self.window.view_up_ppc[1] = result[0, 1]
-        result = np.matmul([[self.window.position[0], self.window.position[1], 1]], change_matrix)
-        self.window.position_ppc[0] = result[0, 0]
-        self.window.position_ppc[1] = result[0, 1]
-        print("position ppc:")
-        print(self.window.position_ppc)
         # atualizar todas as informaçoes -> deletar todos os ppc calculados
         self.ppc_list = {}
         # atualizar pccs com draw all
@@ -142,10 +136,10 @@ class control:
 
         for i, coordinate in enumerate(coordinates):
             # (X - Xwmin) * (Xvpmax - Xvpmin) / (Xwmax - Xwmin)
-            coordinates[i][0] = ((coordinate[0] - self.window.position_ppc[0]) *
+            coordinates[i][0] = ((coordinate[0] - self.window.center[0]) *
                                 da_width / self.window.get_width())
             # (1 - (Y - Ywmin) / (Ywmax - Ywmin)) * (Yvpmax - Yvpmin)
-            coordinates[i][1] = (1 - (coordinate[1] - self.window.position_ppc[1]) /
+            coordinates[i][1] = (1 - (coordinate[1] - self.window.center[1]) /
                                 self.window.get_height()) * da_height
 
         return coordinates
