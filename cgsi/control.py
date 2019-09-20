@@ -97,8 +97,6 @@ class control:
             trans.change_coordinates(coordinates, self.ppc_matrix)
             # talves n precise desse deep copy
             self.ppc_list[obj_name] = copy.deepcopy(coordinates)
-            print(obj_name)
-            print(self.ppc_matrix)
 
         # getting screen convertions and then viewport convertions
 
@@ -202,8 +200,18 @@ class control:
 
     def translate_object(self, name, x, y):
         change_matrix = trans.matrix_translate(x, y)
-        self.change_object(self.obj_list[name], change_matrix)
+        ppc_coordinates = self.ppc_list[name]
+        trans.change_coordinates(ppc_coordinates, change_matrix)
+        world_coordinates = self.ppc_to_world(ppc_coordinates)
+        self.obj_list[name].coordinates = world_coordinates
         self.ppc_list = {}
+
+    def ppc_to_world(self, ppc_coordinates):
+        inversed_matrix = np.linalg.inv(self.ppc_matrix)
+        coordinates = copy.deepcopy(ppc_coordinates)
+        trans.change_coordinates(coordinates, inversed_matrix)
+        return coordinates
+
 
     def rgba_to_tuple(self, rgba):
         ''' Transforms a Gdk.RGBA object into a RGBA tuple.
