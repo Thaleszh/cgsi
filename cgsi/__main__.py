@@ -28,6 +28,7 @@ class UI:
         # init do controle
         # self.control = control.control(drawing_area, context)
         self.control = ct.control()
+        self.control.calculate_ppc()
 
         self.control.create_shape("start 1", "poli", [ [200, 200],[300, 200], [300, 300], [200,300]])
         self.list.append(["start 1", "Poligono"])

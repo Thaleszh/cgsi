@@ -2,10 +2,9 @@ class window:
 	def __init__(self, width, height):
 		self.width = width
 		self.height = height
-		self.center = [0.0, 0.0]
-		self.view_up = [0.0, height/2]
+		self.center = [width/2, height/2]
+		self.v_up = [0.0, height]
 		self.scale = 1.0
-		self.view_up_ppc = [0.0, height/2]
 
 	def up(self, ammount):
 		self.center[1] += ammount

@@ -22,7 +22,6 @@ class control:
     def zoom(self, ammount):
         self.window.zoom(ammount)
 
-
     def up(self, ammount):
         self.window.down(ammount)
         self.calculate_ppc()
@@ -43,18 +42,11 @@ class control:
 
         # find matrix to translate it to point
         # rotate matrix on center
-        print("angle:" + str(angle))
         change_matrix = trans.matrix_rotation(angle, self.window.center)
-        print("change matrix:")
-        print(change_matrix)
         # update coordinates after window rotation
-        print("center before:")
-        print(self.window.center)
-        trans.change_coordinates([self.window.center, self.window.view_up], change_matrix)
-        print("center after:")
-        print(self.window.center)
+        print(angle)
+        trans.change_coordinates([self.window.center, self.window.v_up], change_matrix)
         self.calculate_ppc()
-
 
     def calculate_ppc(self):
         # atualiza todas a cordenadas para lidar com projeçao e rotacao
@@ -62,32 +54,30 @@ class control:
         # calcular matrizes de translaçao. back to place won~t be used
         change_matrix = trans.matrix_translate(-self.window.center[0], -self.window.center[1])
 
-
-        y_axis = [0, 1]
-        up = self.window.view_up
-
         # ver se eh paralelo ao eixo Y
 
-        # encontrar angulo entre vup e Y:
-        # scalar_product(v1,v2)/(length(v1)*length(v2) == 1 se paralelo
-        # dot = scalar product, lonalg.norm = length
-        costeta = np.dot(y_axis, up) / (np.linalg.norm(y_axis) * np.linalg.norm(up))
-        # print(costeta)
-        # possivel de por uma tolerancia de erro com >= 1 - epsilon
-        # se nao forem paralelos
-        if costeta != 1:
-            # calcular matrix com rotaçao
-            teta = math.degrees(math.acos(costeta))
-            if (0 < y_axis[0] * up[1] - y_axis[1] * up[0]):
-            	teta *= -1
-            print("degrees:" + str(teta % 360))
-            change_matrix = np.matmul(change_matrix, trans.matrix_rotation(teta, [0,0]))
+        y_axis_x = 0
+        y_axis_y = 1
+        y_axis_z = 0
+        vp_x = self.window.v_up[0]
+        vp_y = self.window.v_up[1]
+        vp_z = 0
+    
+        angle = angle_between(
+            (y_axis_x, y_axis_y, y_axis_z), (vp_x, vp_y, vp_z)
+        )
+        angle = np.degrees(angle)
+        if angle != 0:
+            rotation_matrix = trans.matrix_rotation(-angle, [0,0])
+            change_matrix = np.matmul(change_matrix, rotation_matrix)
+            result = np.matmul([[self.window.v_up[0], self.window.v_up[1], 1]], rotation_matrix)
+            self.window.v_up[0] = result[0, 0]
+            self.window.v_up[1] = result[0, 1]
 
-        self.ppc_matrix = change_matrix
+
+        self.ppc_matrix = np.matmul(self.ppc_matrix, change_matrix)
         # calcular window com pcc
-        result = np.matmul([[self.window.view_up[0], self.window.view_up[1], 1]], change_matrix)
-        self.window.view_up_ppc[0] = result[0, 0]
-        self.window.view_up_ppc[1] = result[0, 1]
+        self.window.center = [0, 0]
         # atualizar todas as informaçoes -> deletar todos os ppc calculados
         self.ppc_list = {}
         # atualizar pccs com draw all
@@ -107,7 +97,9 @@ class control:
             trans.change_coordinates(coordinates, self.ppc_matrix)
             # talves n precise desse deep copy
             self.ppc_list[obj_name] = copy.deepcopy(coordinates)
-        
+            print(obj_name)
+            print(self.ppc_matrix)
+
         # getting screen convertions and then viewport convertions
 
         coordinates = self.to_viewport(coordinates, drawing_area)
@@ -131,23 +123,29 @@ class control:
         context.stroke()
 
     def to_viewport(self, coordinates, drawing_area):
-        da_width = drawing_area.get_allocation().width
-        da_height = drawing_area.get_allocation().height
-
+        xv_max = drawing_area.get_allocation().width
+        xv_min = 0
+        yv_max = drawing_area.get_allocation().height
+        yv_min = 0
+        xw_min = -self.window.get_height()/2
+        xw_max = self.window.get_width()/2
+        yw_min = -self.window.get_height()/2
+        yw_max = self.window.get_height()/2
+    
         for i, coordinate in enumerate(coordinates):
+            xw = coordinate[0]
+            yw = coordinate[1]
             # (X - Xwmin) * (Xvpmax - Xvpmin) / (Xwmax - Xwmin)
-            coordinates[i][0] = ((coordinate[0] - self.window.center[0]) *
-                                da_width / self.window.get_width())
-            # (1 - (Y - Ywmin) / (Ywmax - Ywmin)) * (Yvpmax - Yvpmin)
-            coordinates[i][1] = (1 - (coordinate[1] - self.window.center[1]) /
-                                self.window.get_height()) * da_height
+            coordinates[i][0] = (xw - xw_min) * (xv_max - xv_min) / (xw_max - xw_min)
+            coordinates[i][1] = (1-((yw - yw_min)/(yw_max - yw_min))) * (yv_max - yv_min)
 
+        #print(coordinates)
         return coordinates
 
     def create_shape(self, name, shape, coordinates, rgba=Gdk.RGBA(0, 0, 0, 1)):
         # check what object is to be made
-        print("created object at:")
-        print(coordinates)
+        # print("created object at:")
+        # print(coordinates)
         rgba = self.rgba_to_tuple(rgba)
         if shape == "Ponto":
             obj = shapes.point(coordinates, rgba)
@@ -155,9 +153,9 @@ class control:
             obj = shapes.line(coordinates, rgba)
         else:
             obj = shapes.polygon(coordinates, rgba)
+    
         # add to display file
         self.obj_list[name] = obj
-        # draw shape created
 
     def delete_shape(self, name):
         del self.obj_list[name]
@@ -194,16 +192,18 @@ class control:
             change_matrix = trans.matrix_rotation(teta, point)
 
         self.change_object(obj, change_matrix)
+        self.ppc_list = {}
 
     def scale_object(self, name, x, y):
         obj = self.obj_list[name]
         change_matrix = trans.matrix_scale(obj, x, y)
         self.change_object(obj, change_matrix)
-
+        self.ppc_list = {}
 
     def translate_object(self, name, x, y):
         change_matrix = trans.matrix_translate(x, y)
         self.change_object(self.obj_list[name], change_matrix)
+        self.ppc_list = {}
 
     def rgba_to_tuple(self, rgba):
         ''' Transforms a Gdk.RGBA object into a RGBA tuple.
@@ -214,3 +214,22 @@ class control:
             A tuple (R, G, B, A)
         '''
         return (rgba.red, rgba.green, rgba.blue, rgba.alpha)
+
+
+def unit_vector(vector):
+    """ Returns the unit vector of the vector.  """
+    return vector / np.linalg.norm(vector)
+
+
+def angle_between(v1, v2):
+    """ Returns the angle in radians between vectors 'v1' and 'v2'::
+            >>> angle_between((1, 0, 0), (0, 1, 0))
+            1.5707963267948966
+            >>> angle_between((1, 0, 0), (1, 0, 0))
+            0.0
+            >>> angle_between((1, 0, 0), (-1, 0, 0))
+            3.141592653589793
+    """
+    v1_u = unit_vector(v1)
+    v2_u = unit_vector(v2)
+    return np.arccos(np.clip(np.dot(v1_u, v2_u), -1.0, 1.0))
