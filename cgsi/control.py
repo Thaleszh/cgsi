@@ -15,9 +15,9 @@ class control:
         self.window = wind.window(600, 400)
         self.obj_list = {}
         self.ppc_list = {}
-        self.ppc_matrix = np.matrix([ [1, 0, 0],
-                                      [0, 1, 0],
-                                      [0, 0, 1]])
+        self.ppc_translation_matrix = np.matrix([ [1, 0, 0],
+                                                [0, 1, 0],
+                                                [0, 0, 1]])
 
     def zoom(self, ammount):
         self.window.zoom(ammount)
@@ -44,7 +44,6 @@ class control:
         # rotate matrix on center
         change_matrix = trans.matrix_rotation(angle, self.window.center)
         # update coordinates after window rotation
-        print(angle)
         trans.change_coordinates([self.window.center, self.window.v_up], change_matrix)
         self.calculate_ppc()
 
@@ -53,6 +52,7 @@ class control:
         
         # calcular matrizes de translaçao. back to place won~t be used
         change_matrix = trans.matrix_translate(-self.window.center[0], -self.window.center[1])
+        self.ppc_translation_matrix = np.matmul(self.ppc_translation_matrix, change_matrix)
 
         # ver se eh paralelo ao eixo Y
 
@@ -74,13 +74,16 @@ class control:
             self.window.v_up[0] = result[0, 0]
             self.window.v_up[1] = result[0, 1]
 
-
-        self.ppc_matrix = np.matmul(self.ppc_matrix, change_matrix)
         # calcular window com pcc
         self.window.center = [0, 0]
-        # atualizar todas as informaçoes -> deletar todos os ppc calculados
-        self.ppc_list = {}
-        # atualizar pccs com draw all
+        # atualizar todas as informaçoes
+        for obj in self.obj_list:
+            if obj in self.ppc_list:
+                trans.change_coordinates(self.ppc_list[obj], change_matrix)
+            else:
+                coordinates = copy.deepcopy(self.obj_list[obj].coordinates)
+                trans.change_coordinates(coordinates, self.ppc_translation_matrix)
+                self.ppc_list[obj] = coordinates
 
     def draw_all(self, drawing_area, context):
         for obj in self.obj_list: # future change to check alter egos
@@ -89,14 +92,7 @@ class control:
     def draw_shape(self, obj_name, drawing_area, context):
         # to do: clippin here - before getting the object or calculating it's ppc
         obj = self.obj_list[obj_name]
-        if obj_name in self.ppc_list:
-            coordinates = copy.deepcopy(self.ppc_list[obj_name])
-        else:
-            # apply ppc matrix
-            coordinates = copy.deepcopy(obj.coordinates)
-            trans.change_coordinates(coordinates, self.ppc_matrix)
-            # talves n precise desse deep copy
-            self.ppc_list[obj_name] = copy.deepcopy(coordinates)
+        coordinates = copy.deepcopy(self.ppc_list[obj_name])
 
         # getting screen convertions and then viewport convertions
 
@@ -154,6 +150,7 @@ class control:
     
         # add to display file
         self.obj_list[name] = obj
+        self.calculate_ppc()
 
     def delete_shape(self, name):
         del self.obj_list[name]
@@ -179,39 +176,54 @@ class control:
         # self.change_object(obj, change_matrix)
 
     def rotate_object(self, name, teta, rotation, point=[0,0]):
-        obj = self.obj_list[name]
+        world_coordinates = self.obj_list[name].coordinates
+        world_coordinates = self.rotate_coordinates(
+            world_coordinates, teta, rotation, point
+        )
+
+        ppc_coordinates = self.ppc_list[name]
+        point = [point]
+        trans.change_coordinates(point, self.ppc_translation_matrix)
+        self.ppc_list[name] = self.rotate_coordinates(
+            ppc_coordinates, teta, rotation, point[0]
+        )
+
+    def rotate_coordinates(self, coordinates, teta, rotation, point):
+        dummy_obj = shapes.shape(coordinates)
 
         if rotation == trans.ROTATE_AROUND_SELF:
-            obj_center = trans.find_center(obj)
+            obj_center = trans.find_center(dummy_obj)
             change_matrix = trans.matrix_rotation(teta, obj_center)
-        elif rotation == trans.ROTATE_AROUND_CENTER:
-            change_matrix = trans.matrix_rotation(teta, (0, 0))
-        elif rotation == trans.ROTATE_AROUND_POINT:
+        else:
             change_matrix = trans.matrix_rotation(teta, point)
 
-        self.change_object(obj, change_matrix)
-        self.ppc_list = {}
+        trans.change_object(dummy_obj, change_matrix)
+        return dummy_obj.coordinates
 
     def scale_object(self, name, x, y):
-        obj = self.obj_list[name]
-        change_matrix = trans.matrix_scale(obj, x, y)
-        self.change_object(obj, change_matrix)
-        self.ppc_list = {}
+        world_coordinates = self.obj_list[name].coordinates
+        world_coordinates = self.scale_coordinates(world_coordinates, x, y)
+        ppc_coordinates = self.ppc_list[name]
+        self.ppc_list[name] = self.scale_coordinates(ppc_coordinates, x, y)
+
+    def scale_coordinates(self, coordinates, x, y):
+        coordinates = copy.deepcopy(coordinates)
+        dummy_obj = shapes.shape(coordinates)
+        change_matrix = trans.matrix_scale(dummy_obj, x, y)
+        self.change_object(dummy_obj, change_matrix)
+        return dummy_obj.coordinates
 
     def translate_object(self, name, x, y):
-        change_matrix = trans.matrix_translate(x, y)
+        world_coordinates = self.obj_list[name].coordinates
+        world_coordinates = self.translate_coordinates(world_coordinates, x, y)
         ppc_coordinates = self.ppc_list[name]
-        trans.change_coordinates(ppc_coordinates, change_matrix)
-        world_coordinates = self.ppc_to_world(ppc_coordinates)
-        self.obj_list[name].coordinates = world_coordinates
-        self.ppc_list = {}
+        self.ppc_list[name] = self.translate_coordinates(ppc_coordinates, x, y)
 
-    def ppc_to_world(self, ppc_coordinates):
-        inversed_matrix = np.linalg.inv(self.ppc_matrix)
-        coordinates = copy.deepcopy(ppc_coordinates)
-        trans.change_coordinates(coordinates, inversed_matrix)
+    def translate_coordinates(self, coordinates, x, y):
+        coordinates = copy.deepcopy(coordinates)
+        change_matrix = trans.matrix_translate(x, y)
+        trans.change_coordinates(coordinates, change_matrix)
         return coordinates
-
 
     def rgba_to_tuple(self, rgba):
         ''' Transforms a Gdk.RGBA object into a RGBA tuple.

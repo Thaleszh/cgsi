@@ -266,7 +266,7 @@ class UI:
                 x = int(self.builder.get_object("rotation_x").get_text())
                 y = int(self.builder.get_object("rotation_y").get_text())
                 self.control.rotate_object(
-                    name, angle, trans.ROTATE_AROUND_POINT, (x, y)
+                    name, angle, trans.ROTATE_AROUND_POINT, [x, y]
                 )
 
         self.refresh()
