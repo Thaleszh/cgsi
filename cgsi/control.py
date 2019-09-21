@@ -63,9 +63,11 @@ class control:
         vp_y = self.window.v_up[1]
         vp_z = 0
     
-        angle = angle_between(
+        angle, negative = angle_between(
             (y_axis_x, y_axis_y, y_axis_z), (vp_x, vp_y, vp_z)
         )
+        if negative:
+        	angle *= -1
         angle = np.degrees(angle)
         if angle != 0:
             rotation_matrix = trans.matrix_rotation(-angle, [0,0])
@@ -252,4 +254,8 @@ def angle_between(v1, v2):
     """
     v1_u = unit_vector(v1)
     v2_u = unit_vector(v2)
-    return np.arccos(np.clip(np.dot(v1_u, v2_u), -1.0, 1.0))
+    negative = False
+    if (0 < (v1[0] * v2[1]) - (v1[1]* v2[0])):
+        negative = True
+    return [np.arccos(np.clip(np.dot(v1_u, v2_u), -1.0, 1.0)), negative]
+
