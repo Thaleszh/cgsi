@@ -63,11 +63,9 @@ class control:
         vp_y = self.window.v_up[1]
         vp_z = 0
     
-        angle, negative = angle_between(
+        angle = angle_between(
             (y_axis_x, y_axis_y, y_axis_z), (vp_x, vp_y, vp_z)
         )
-        if negative:
-        	angle *= -1
         angle = np.degrees(angle)
         if angle != 0:
             rotation_matrix = trans.matrix_rotation(-angle, [0,0])
@@ -142,7 +140,7 @@ class control:
         # check what object is to be made
         # print("created object at:")
         # print(coordinates)
-        rgba = self.rgba_to_tuple(rgba)
+        rgba = rgba_to_tuple(rgba)
         if shape == "Ponto":
             obj = shapes.point(coordinates, rgba)
         elif shape == "Linha":
@@ -217,25 +215,26 @@ class control:
 
     def translate_object(self, name, x, y):
         world_coordinates = self.obj_list[name].coordinates
-        world_coordinates = self.translate_coordinates(world_coordinates, x, y)
+        world_coordinates = translate_coordinates(world_coordinates, x, y)
         ppc_coordinates = self.ppc_list[name]
-        self.ppc_list[name] = self.translate_coordinates(ppc_coordinates, x, y)
+        self.ppc_list[name] = translate_coordinates(ppc_coordinates, x, y)
 
-    def translate_coordinates(self, coordinates, x, y):
-        coordinates = copy.deepcopy(coordinates)
-        change_matrix = trans.matrix_translate(x, y)
-        trans.change_coordinates(coordinates, change_matrix)
-        return coordinates
+def translate_coordinates(coordinates, x, y):
+    coordinates = copy.deepcopy(coordinates)
+    change_matrix = trans.matrix_translate(x, y)
+    trans.change_coordinates(coordinates, change_matrix)
+    return coordinates
 
-    def rgba_to_tuple(self, rgba):
-        ''' Transforms a Gdk.RGBA object into a RGBA tuple.
 
-        Args:
-            rgba: Gdk.RGBA object.
-        Returns:
-            A tuple (R, G, B, A)
-        '''
-        return (rgba.red, rgba.green, rgba.blue, rgba.alpha)
+def rgba_to_tuple(rgba):
+    ''' Transforms a Gdk.RGBA object into a RGBA tuple.
+
+    Args:
+        rgba: Gdk.RGBA object.
+    Returns:
+        A tuple (R, G, B, A)
+    '''
+    return (rgba.red, rgba.green, rgba.blue, rgba.alpha)
 
 
 def unit_vector(vector):
@@ -254,8 +253,8 @@ def angle_between(v1, v2):
     """
     v1_u = unit_vector(v1)
     v2_u = unit_vector(v2)
-    negative = False
+    result = np.arccos(np.clip(np.dot(v1_u, v2_u), -1.0, 1.0))
     if (0 < (v1[0] * v2[1]) - (v1[1]* v2[0])):
-        negative = True
-    return [np.arccos(np.clip(np.dot(v1_u, v2_u), -1.0, 1.0)), negative]
+        result *= -1
+    return result
 
