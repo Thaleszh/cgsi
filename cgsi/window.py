@@ -7,16 +7,16 @@ class window:
 		self.scale = 1.0
 
 	def up(self, ammount):
-		self.center[1] += ammount
-
-	def down(self, ammount):
 		self.center[1] -= ammount
 
+	def down(self, ammount):
+		self.center[1] += ammount
+
 	def left(self, ammount):
-		self.center[0] += ammount
+		self.center[0] -= ammount
 
 	def right(self, ammount):
-		self.center[0] -= ammount
+		self.center[0] += ammount
 
 	def zoom(self, ammount):
 		self.scale *= ammount

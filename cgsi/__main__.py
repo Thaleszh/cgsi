@@ -21,6 +21,8 @@ class UI:
         self.drawing_area = self.builder.get_object('viewport')
         self.list = self.builder.get_object('object_list')
         self.tree_view = self.builder.get_object('tree_view_object_list')
+        self.file_chooser_window = self.builder.get_object('file_chooser')
+        self.import_file_chooser_window = self.builder.get_object('import_file_chooser')
 
         self.builder.connect_signals(self)
         self.main_window.connect('destroy', Gtk.main_quit)
@@ -229,6 +231,12 @@ class UI:
         # resetar campos
         self.modification_dialog.show()
 
+    def select_export(self, *args):
+        self.file_chooser_window.show()
+
+    def select_import(self, *args):
+        self.import_file_chooser_window.show()
+
     # ModificationDialogHandler
     def modify(self, *args):
         """
@@ -287,6 +295,31 @@ class UI:
         text_label = self.builder.get_object('warning_dialog_text')
         text_label.set_text(text)
         self.warning_dialog.show()
+
+    def select_path(self, title, text):
+        file_path = self.file_chooser_window.get_current_folder()
+        text_label = self.builder.get_object('file_path')
+        text_label.get_buffer().set_text(file_path)
+
+    def select_file_path(self, title, text):
+        file_path = self.import_file_chooser_window.get_uri()
+        text_label = self.builder.get_object('import_file_path')
+        text_label.get_buffer().set_text(file_path[7:])
+
+    def export(self, text_view):
+        buffer = text_view.get_buffer()
+        start_iter = buffer.get_start_iter()
+        end_iter = buffer.get_end_iter()
+        text = buffer.get_text(start_iter, end_iter, True)
+        self.control.export(text)
+
+    def import_object(self, text_view):
+        buffer = text_view.get_buffer()
+        start_iter = buffer.get_start_iter()
+        end_iter = buffer.get_end_iter()
+        text = buffer.get_text(start_iter, end_iter, True)
+        text = text.replace("%20", " ")
+        self.control.import_object(text)
 
 def run():
     UI()

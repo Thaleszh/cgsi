@@ -8,6 +8,7 @@ from gi.repository import Gdk
 import shapes
 import transformations as trans
 import window as wind
+from obj_descriptor import OBJDescriptor
 
 
 class control:
@@ -18,6 +19,7 @@ class control:
         self.ppc_translation_matrix = np.matrix([ [1, 0, 0],
                                                 [0, 1, 0],
                                                 [0, 0, 1]])
+        self.descriptor = OBJDescriptor()
 
     def zoom(self, ammount):
         self.window.zoom(ammount)
@@ -49,7 +51,7 @@ class control:
 
     def calculate_ppc(self):
         # atualiza todas a cordenadas para lidar com projeçao e rotacao
-        
+
         # calcular matrizes de translaçao. back to place won~t be used
         change_matrix = trans.matrix_translate(-self.window.center[0], -self.window.center[1])
         self.ppc_translation_matrix = np.matmul(self.ppc_translation_matrix, change_matrix)
@@ -62,7 +64,7 @@ class control:
         vp_x = self.window.v_up[0]
         vp_y = self.window.v_up[1]
         vp_z = 0
-    
+
         angle = angle_between(
             (y_axis_x, y_axis_y, y_axis_z), (vp_x, vp_y, vp_z)
         )
@@ -125,7 +127,7 @@ class control:
         xw_max = self.window.get_width()/2
         yw_min = -self.window.get_height()/2
         yw_max = self.window.get_height()/2
-    
+
         for i, coordinate in enumerate(coordinates):
             xw = coordinate[0]
             yw = coordinate[1]
@@ -147,7 +149,7 @@ class control:
             obj = shapes.line(coordinates, rgba)
         else:
             obj = shapes.polygon(coordinates, rgba)
-    
+
         # add to display file
         self.obj_list[name] = obj
         self.calculate_ppc()
@@ -180,6 +182,7 @@ class control:
         world_coordinates = self.rotate_coordinates(
             world_coordinates, teta, rotation, point
         )
+        self.obj_list[name].coordinates = world_coordinates
 
         ppc_coordinates = self.ppc_list[name]
         point = [point]
@@ -203,6 +206,7 @@ class control:
     def scale_object(self, name, x, y):
         world_coordinates = self.obj_list[name].coordinates
         world_coordinates = self.scale_coordinates(world_coordinates, x, y)
+        self.obj_list[name].coordinates = world_coordinates
         ppc_coordinates = self.ppc_list[name]
         self.ppc_list[name] = self.scale_coordinates(ppc_coordinates, x, y)
 
@@ -216,8 +220,24 @@ class control:
     def translate_object(self, name, x, y):
         world_coordinates = self.obj_list[name].coordinates
         world_coordinates = translate_coordinates(world_coordinates, x, y)
+        self.obj_list[name].coordinates = world_coordinates
         ppc_coordinates = self.ppc_list[name]
         self.ppc_list[name] = translate_coordinates(ppc_coordinates, x, y)
+
+    def export(self, path):
+        for obj_name in self.obj_list:
+            file_path = path + '/' + obj_name + '.obj'
+            self.descriptor.write_obj(obj_name, self.obj_list[obj_name], file_path)
+
+    def import_object(self, path):
+        name, coordinates = self.descriptor.read_obj(path)
+        if len(coordinates) == 1:
+            shape = 'Ponto'
+        elif len(coordinates) == 2:
+            shape = 'Linha'
+        else:
+            shape = 'Poligono'
+        self.create_shape(name, shape, coordinates)
 
 def translate_coordinates(coordinates, x, y):
     coordinates = copy.deepcopy(coordinates)
