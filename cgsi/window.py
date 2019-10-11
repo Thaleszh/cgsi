@@ -1,10 +1,11 @@
 class window:
-	def __init__(self, width, height):
+	def __init__(self, width, height, border_size = 10):
 		self.width = width
 		self.height = height
 		self.center = [width/2, height/2]
 		self.v_up = [0.0, height]
 		self.scale = 1.0
+		self.border_size = border_size
 
 	def up(self, ammount):
 		self.center[1] -= ammount

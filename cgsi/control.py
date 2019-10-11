@@ -91,18 +91,35 @@ class control:
         for obj in self.obj_list: # future change to check alter egos
             self.draw_shape(obj, drawing_area, context)
 
+        self.draw_border(drawing_area, context)
+
+    def draw_border(self, drawing_area, context):
+        max_height = self.window.height
+        max_width = self.window.width
+        border_size = self.window.border_size
+        border_coordinates = [
+            [border_size, border_size],
+            [border_size, max_height - border_size],
+            [max_width - border_size, max_height - border_size],
+            [max_width - border_size, border_size]
+        ]
+        self.draw_coordinates(border_coordinates, drawing_area, context)
+
     def draw_shape(self, obj_name, drawing_area, context):
         # to do: clippin here - before getting the object or calculating it's ppc
         obj = self.obj_list[obj_name]
         coordinates = copy.deepcopy(self.ppc_list[obj_name])
+        coordinates = self.to_viewport(coordinates, drawing_area)
+        self.draw_coordinates(coordinates, drawing_area, context, obj.rgba)
+
+    def draw_coordinates(self, coordinates, drawing_area, context, rgba=(0,0,0,1)):
 
         # getting screen convertions and then viewport convertions
 
-        coordinates = self.to_viewport(coordinates, drawing_area)
 
         # set line's color
         context.set_source_rgba(
-            obj.rgba[0], obj.rgba[1], obj.rgba[2], obj.rgba[3]
+            rgba[0], rgba[1], rgba[2], rgba[3]
         )
         # draw coordinates on viewport, it's an array of doubles
         context.new_path()
@@ -123,7 +140,7 @@ class control:
         xv_min = 0
         yv_max = drawing_area.get_allocation().height
         yv_min = 0
-        xw_min = -self.window.get_height()/2
+        xw_min = -self.window.get_width()/2
         xw_max = self.window.get_width()/2
         yw_min = -self.window.get_height()/2
         yw_max = self.window.get_height()/2
