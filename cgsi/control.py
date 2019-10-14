@@ -127,15 +127,23 @@ class control:
         context.move_to(coordinates[0][0], coordinates[0][1])
         last_point = coordinates[0][0], coordinates[0][1]
 
-        # all points in middle
+        # all points in middle  
         for i in range(1, len(coordinates)):
             next_point = coordinates[i][0], coordinates[i][1]
             discart = self.should_discart(last_point, next_point)
+            if discart:
+                context.move_to(next_point[0], next_point[1])
+                last_point = next_point
+                continue
             context.line_to(coordinates[i][0], coordinates[i][1])
+            last_point = next_point
             # print(str(coordinates[i][0]) + " " + str(coordinates[i][1]))
         # last point to first
-        context.line_to(coordinates[0][0], coordinates[0][1])
-        # print(str(coordinates[0][0]) + " " + str(coordinates[0][1]))
+        next_point = (coordinates[0][0], coordinates[0][1])
+        discart = self.should_discart(last_point, next_point)
+        if not discart:
+            context.line_to(coordinates[0][0], coordinates[0][1])
+
         context.stroke()
 
     def should_discart(self, p1, p2):
@@ -143,8 +151,8 @@ class control:
         p2_area_code = self.point_area_code(p2)
 
         if p1_area_code & p2_area_code == 0:
-            return True
-        return False
+            return False
+        return True
 
     def point_area_code(self, point):
         area_code = 0
