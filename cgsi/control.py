@@ -125,15 +125,44 @@ class control:
         context.new_path()
         # first point
         context.move_to(coordinates[0][0], coordinates[0][1])
+        last_point = coordinates[0][0], coordinates[0][1]
 
         # all points in middle
         for i in range(1, len(coordinates)):
+            next_point = coordinates[i][0], coordinates[i][1]
+            discart = self.should_discart(last_point, next_point)
             context.line_to(coordinates[i][0], coordinates[i][1])
             # print(str(coordinates[i][0]) + " " + str(coordinates[i][1]))
         # last point to first
         context.line_to(coordinates[0][0], coordinates[0][1])
         # print(str(coordinates[0][0]) + " " + str(coordinates[0][1]))
         context.stroke()
+
+    def should_discart(self, p1, p2):
+        p1_area_code = self.point_area_code(p1)
+        p2_area_code = self.point_area_code(p2)
+
+        if p1_area_code & p2_area_code == 0:
+            return True
+        return False
+
+    def point_area_code(self, point):
+        area_code = 0
+        x_min = self.window.border_size
+        x_max = self.window.get_width() - self.window.border_size
+        y_min = self.window.border_size
+        y_max = self.window.get_height() - self.window.border_size
+
+        if point[0] < x_min:
+            area_code = area_code | 1
+        elif point[0] > x_max:
+            area_code = area_code | 2
+        if point[1] < y_min:
+            area_code = area_code | 4
+        elif point[1] > y_max:
+            area_code = area_code | 8
+
+        return area_code
 
     def to_viewport(self, coordinates, drawing_area):
         xv_max = drawing_area.get_allocation().width
