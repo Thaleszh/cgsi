@@ -129,22 +129,63 @@ class control:
 
         # all points in middle  
         for i in range(1, len(coordinates)):
+            last_point = coordinates[i-1][0], coordinates[i-1][1]
             next_point = coordinates[i][0], coordinates[i][1]
             discart = self.should_discart(last_point, next_point)
             if discart:
-                context.move_to(next_point[0], next_point[1])
-                last_point = next_point
                 continue
-            context.line_to(coordinates[i][0], coordinates[i][1])
-            last_point = next_point
+
+            last_point, next_point = self.clip_points(last_point, next_point)
+            context.move_to(last_point[0], last_point[1])
+            context.line_to(next_point[0], next_point[1])
             # print(str(coordinates[i][0]) + " " + str(coordinates[i][1]))
         # last point to first
         next_point = (coordinates[0][0], coordinates[0][1])
+        last_point = coordinates[-1][0], coordinates[-1][1]
         discart = self.should_discart(last_point, next_point)
         if not discart:
-            context.line_to(coordinates[0][0], coordinates[0][1])
+            last_point, next_point = self.clip_points(last_point, next_point)
+            context.move_to(last_point[0], last_point[1])
+            context.line_to(next_point[0], next_point[1])
 
         context.stroke()
+
+    def clip_points(self, p1, p2):
+        p1_area_code = self.point_area_code(p1)
+        p2_area_code = self.point_area_code(p2)
+
+        if p1_area_code == 0 and p1_area_code == p2_area_code:
+            return p1, p2
+
+        m = (p2[1] - p1[1])/(p2[0] - p1[0])
+        border_size = self.window.border_size
+        if p1_area_code != 0:
+            p1 = self.window_intersection(p1, p1_area_code, m)
+        if p2_area_code != 0:
+            p2 = self.window_intersection(p2, p2_area_code, m)
+        return p1, p2
+
+    def window_intersection(self, point, point_area_code, m):
+        # left
+        if point_area_code == 1:
+            x = self.window.border_size
+            y = m*(x - point[0]) + point[1]
+            return (x, y)
+        # up
+        if point_area_code == 8:
+            y = self.window.height - self.window.border_size
+            x = point[0] + 1/m * (y - point[1])
+            return (x, y)
+        # right
+        if point_area_code == 2:
+            x = self.window.width - self.window.border_size
+            y = m * (x - point[0]) + point[1]
+            return (x, y)
+        # down
+        if point_area_code == 4:
+            y = self.window.border_size
+            x = point[0] + 1/m * (y - point[1])
+            return (x, y)
 
     def should_discart(self, p1, p2):
         p1_area_code = self.point_area_code(p1)
