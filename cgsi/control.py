@@ -233,17 +233,25 @@ class control:
         #print(coordinates)
         return coordinates
 
-    def create_shape(self, name, shape, coordinates, rgba=Gdk.RGBA(0, 0, 0, 1)):
-        # check what object is to be made
-        # print("created object at:")
-        # print(coordinates)
+    def create_shape(self, name, shape, coordinates, rgba=Gdk.RGBA(0, 0, 0, 1), step=0):
+        ''' Create a shape and draw it according to it's ppc
+        Args:
+            name: name of the shape (as in the object's name)
+            shape: what shape it belongs
+            coordinates: points that discribe the shape
+            rgba: object color
+            step: used to render curves. set the step for the drawing
+        '''
+
         rgba = rgba_to_tuple(rgba)
         if shape == "Ponto":
             obj = shapes.point(coordinates, rgba)
         elif shape == "Linha":
             obj = shapes.line(coordinates, rgba)
-        else:
+        elif shape == "Poligono":
             obj = shapes.polygon(coordinates, rgba)
+        else:
+            pass
 
         # add to display file
         self.obj_list[name] = obj

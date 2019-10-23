@@ -32,9 +32,9 @@ class UI:
         self.control = ct.control()
         self.control.calculate_ppc()
 
-        self.control.create_shape("start 1", "poli", [ [200, 200],[300, 200], [300, 300], [200,300]])
+        self.control.create_shape("start 1", "Poligono", [ [200, 200],[300, 200], [300, 300], [200,300]])
         self.list.append(["start 1", "Poligono"])
-        self.control.create_shape("start 2", "poli", [ [100, 200],[150, 200], [150, 250], [100,250]])
+        self.control.create_shape("start 2", "Poligono", [ [100, 200],[150, 200], [150, 250], [100,250]])
         self.list.append(["start 2", "Poligono"])
 
         self.control.scale_object("start 1", 2, 1)
@@ -196,6 +196,8 @@ class UI:
             y_entry = self.builder.get_object("y_point")
 
             coordinates = [[int(x_entry.get_text()), int(y_entry.get_text())]]
+            self.control.create_shape(name, shape, coordinates, color_rgba)
+
         elif page == 1:
             shape = "Linha"
             x1_entry = self.builder.get_object("x1_line")
@@ -204,23 +206,44 @@ class UI:
             y2_entry = self.builder.get_object("y2_line")
             coordinates = [[int(x1_entry.get_text()), int(y1_entry.get_text())],
                             [int(x2_entry.get_text()), int(y2_entry.get_text())] ]
-        else:
-            shape = "Poligono"
-            x_entry = self.builder.get_object("x_poli")
-            y_entry = self.builder.get_object("y_poli")
-            # removes spaces and splits on commas
-            x_entries = x_entry.get_text().replace(" ", "").split(",")
-            y_entries = y_entry.get_text().replace(" ", "").split(",")
-            #parse
-            for x, y in zip(x_entries, y_entries):
-                coordinates.append([int(x), int(y)])
+            self.control.create_shape(name, shape, coordinates, color_rgba)
 
-        self.control.create_shape(name, shape, coordinates, color_rgba)
+        elif page == 2:
+            shape = "Poligono"
+            coordinates = self.read_coordinates('poli')
+            self.control.create_shape(name, shape, coordinates, color_rgba)
+
+        else:
+            shape = "Bezier"
+            coordinates = self.read_coordinates('bezier')
+            step_entry = self.builder.get_object(f"step_bezier")
+            step = float(step_entry.get_text())
+
         self.list.append([name, shape])
         # to do: resetar campos
         # fecha janela
         self.cancel(self.add_object_window)
         self.refresh()
+
+    def read_coordinates(self, label: str):
+        ''' Reads coordinates x, y from input and create a list.
+        GTKEntry object must be named in the format 'coordinate_label'.
+        Ex: 'x_poli'
+        
+        Args:
+            label: label to be concatenated with the coordinate and underscore
+        Returns:
+            List of lists w/ point's coordinates
+        '''
+        x_entry = self.builder.get_object(f"x_{label}")
+        y_entry = self.builder.get_object(f"y_{label}")
+        
+        # removes spaces and splits on commas
+        x_entries = x_entry.get_text().replace(" ", "").split(",")
+        y_entries = y_entry.get_text().replace(" ", "").split(",")
+        
+        #parse    
+        return [[int(x), int(y)] for x, y in zip(x_entries, y_entries)]
 
     def modify_item(self, *args):
         """

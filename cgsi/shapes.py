@@ -16,6 +16,10 @@ class polygon(shape):
 	pass
 
 
+class Bezier(shape):
+	pass
+
+
 if __name__ == '__main__':
     rect = rectangle([[0,0],[1,0],[1,1],[0,1]])
     for coordinate in rect.coordinates:
