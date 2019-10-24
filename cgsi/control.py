@@ -94,9 +94,9 @@ class control:
             self.draw_shape(obj, drawing_area, context)
 
     def draw_border(self, drawing_area, context):
-        max_height = self.window.height
-        max_width = self.window.width
-        border_size = self.window.border_size
+        max_height = drawing_area.get_allocation().height
+        max_width = drawing_area.get_allocation().width
+        border_size = 10
         border_coordinates = [
             [border_size, border_size],
             [border_size, max_height - border_size],
@@ -108,12 +108,11 @@ class control:
     def draw_shape(self, obj_name, drawing_area, context):
         obj = self.obj_list[obj_name]
         coordinates = copy.deepcopy(self.ppc_list[obj_name])
-        coordinates = self.to_viewport(coordinates, drawing_area)   
-        
         # clipping:
         clipped_coordinates = clip.clip(coordinates, self.window)
         # if at least one point
-        if (clipped_coordinates[0]):
+        if (clipped_coordinates):
+            clipped_coordinates = self.to_viewport(clipped_coordinates, drawing_area)
             self.draw_coordinates(clipped_coordinates, drawing_area, context, obj.rgba)
 
     def draw_coordinates(self, coordinates, drawing_area, context, rgba=(0,0,0,1)):
@@ -148,9 +147,9 @@ class control:
         context.stroke()
 
     def to_viewport(self, coordinates, drawing_area):
-        xv_max = drawing_area.get_allocation().width
+        xv_max = drawing_area.get_allocation().width - 20
         xv_min = 0
-        yv_max = drawing_area.get_allocation().height
+        yv_max = drawing_area.get_allocation().height - 20
         yv_min = 0
         xw_min = -self.window.get_width()/2
         xw_max = self.window.get_width()/2
@@ -161,8 +160,8 @@ class control:
             xw = coordinate[0]
             yw = coordinate[1]
             # (X - Xwmin) * (Xvpmax - Xvpmin) / (Xwmax - Xwmin)
-            coordinates[i][0] = (xw - xw_min) * (xv_max - xv_min) / (xw_max - xw_min)
-            coordinates[i][1] = (1-((yw - yw_min)/(yw_max - yw_min))) * (yv_max - yv_min)
+            coordinates[i][0] = 10 + ((xw - xw_min) * (xv_max - xv_min) / (xw_max - xw_min))
+            coordinates[i][1] = 10 + ((1-((yw - yw_min)/(yw_max - yw_min))) * (yv_max - yv_min))
 
         #print(coordinates)
         return coordinates

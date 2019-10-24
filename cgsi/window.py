@@ -5,7 +5,6 @@ class window:
 		self.center = [width/2, height/2]
 		self.v_up = [0.0, height]
 		self.scale = 1.0
-		self.border_size = border_size
 
 	def up(self, ammount):
 		self.center[1] -= ammount

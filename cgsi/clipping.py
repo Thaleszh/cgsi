@@ -2,11 +2,11 @@ import window as wind
 import shapes
 
 def clip(coordinates, window):
-    clipped_coordinates = [[]]
+    clipped_coordinates = []
     last_point = coordinates[0][0], coordinates[0][1]
     for i in range(1, len(coordinates)):
-        last_point = coordinates[i-1][0], coordinates[i-1][1]
-        next_point = coordinates[i][0], coordinates[i][1]
+        last_point = [coordinates[i-1][0], coordinates[i-1][1]]
+        next_point = [coordinates[i][0], coordinates[i][1]]
         discart = should_discart(last_point, next_point, window)
         if discart:
             continue
@@ -15,8 +15,8 @@ def clip(coordinates, window):
         clipped_coordinates.append(last_point)
         clipped_coordinates.append(next_point)
     # last point to first
-    next_point = (coordinates[0][0], coordinates[0][1])
-    last_point = coordinates[-1][0], coordinates[-1][1]
+    next_point = [coordinates[0][0], coordinates[0][1]]
+    last_point = [coordinates[-1][0], coordinates[-1][1]]
     discart = should_discart(last_point, next_point, window)
     if not discart:
         last_point, next_point = clip_points(last_point, next_point, window)
@@ -32,7 +32,6 @@ def clip_points(p1, p2, window):
         return p1, p2
 
     m = (p2[1] - p1[1])/(p2[0] - p1[0])
-    border_size = window.border_size
     if p1_area_code != 0:
         p1 = window_intersection(p1, p1_area_code, m, window)
     if p2_area_code != 0:
@@ -42,24 +41,24 @@ def clip_points(p1, p2, window):
 def window_intersection(point, point_area_code, m, window):
     # left
     if point_area_code == 1:
-        x = window.border_size
+        x = -window.get_width()/2
         y = m*(x - point[0]) + point[1]
-        return (x, y)
+        return [x, y]
     # up
     if point_area_code == 8:
-        y = window.height - window.border_size
+        y = window.get_height()/2
         x = point[0] + 1/m * (y - point[1])
-        return (x, y)
+        return [x, y]
     # right
     if point_area_code == 2:
-        x = window.width - window.border_size
+        x = window.get_width()/2
         y = m * (x - point[0]) + point[1]
-        return (x, y)
+        return [x, y]
     # down
     if point_area_code == 4:
-        y = window.border_size
+        y = -window.get_height()/2
         x = point[0] + 1/m * (y - point[1])
-        return (x, y)
+        return [x, y]
 
 def should_discart(p1, p2, window):
     p1_area_code = point_area_code(p1, window)
@@ -71,10 +70,10 @@ def should_discart(p1, p2, window):
 
 def point_area_code(point, window):
     area_code = 0
-    x_min = window.border_size
-    x_max = window.get_width() - window.border_size
-    y_min = window.border_size
-    y_max = window.get_height() - window.border_size
+    x_min = -window.get_width()/2
+    x_max = window.get_width()/2
+    y_min = -window.get_height()/2
+    y_max = window.get_height()/2
 
     if point[0] < x_min:
         area_code = area_code | 1
