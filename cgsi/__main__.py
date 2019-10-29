@@ -216,7 +216,14 @@ class UI:
         else:
             shape = "Bezier"
             coordinates = self.read_coordinates('bezier')
-            step_entry = self.builder.get_object(f"step_bezier")
+            if len(coordinates) % 4 != 0:
+                return self.show_warning(
+                    'Número errado de pontos',
+                    'Cada curva é composta de 4 pontos. \
+                    Insira uma quantidade múltipla de 4.'
+                )
+
+            step_entry = self.builder.get_object("step_bezier")
             step = float(step_entry.get_text())
 
         self.list.append([name, shape])
@@ -235,8 +242,8 @@ class UI:
         Returns:
             List of lists w/ point's coordinates
         '''
-        x_entry = self.builder.get_object(f"x_{label}")
-        y_entry = self.builder.get_object(f"y_{label}")
+        x_entry = self.builder.get_object("x_{}".format(label))
+        y_entry = self.builder.get_object("y_{}".format(label))
         
         # removes spaces and splits on commas
         x_entries = x_entry.get_text().replace(" ", "").split(",")
