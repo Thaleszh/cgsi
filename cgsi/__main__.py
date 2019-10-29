@@ -225,6 +225,9 @@ class UI:
 
             step_entry = self.builder.get_object("step_bezier")
             step = float(step_entry.get_text())
+            self.control.create_shape(
+                name, shape, coordinates, color_rgba, step
+            )
 
         self.list.append([name, shape])
         # to do: resetar campos

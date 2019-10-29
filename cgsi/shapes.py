@@ -1,9 +1,10 @@
 import numpy as np
 
 class shape:
-    def __init__(self, coordinates, rgba=(0,0,0,1)):
+    def __init__(self, coordinates, rgba=(0,0,0,1), closed_shape=True):
         self.coordinates = coordinates
         self.rgba = rgba
+        self.closed_shape = closed_shape
 
 
 class point(shape):
@@ -28,27 +29,18 @@ class Bezier(shape):
         ])
         self.coordinates = []
         self.calculate_curve(coordinates, step)
+        self.rgba = rgba
+        self.closed_shape = False
 
     def calculate_curve(self, points, step):
-        gbx = np.array([
-            [points[0][0]],
-            [points[1][0]],
-            [points[2][0]],
-            [points[3][0]],
-        ])
-        gby = np.array([
-            [points[0][1]],
-            [points[1][1]],
-            [points[2][1]],
-            [points[3][1]],
-        ])
+        i = 0
         while i <= 1:
-            point_x = calculate_bezier_point(i, [p1,p2,p3,p4], 0)
-            point_y = calculate_bezier_point(i, [p1,p2,p3,p4], 1)
+            point_x = self.calculate_point(i, points, 0)
+            point_y = self.calculate_point(i, points, 1)
             self.coordinates.append([point_x, point_y])
             i += 0.2
 
-    def calculate_point(t, points, point_index):
+    def calculate_point(self, t, points, point_index):
         return (points[0][point_index]*(-(t*t*t) + 3*t*t - 3*t + 1) +
                 points[1][point_index]*(3*t*t*t - 6*t*t + 3*t) +
                 points[2][point_index]*(-3*t*t*t + 3*t*t) +

@@ -1,7 +1,7 @@
 import window as wind
 import shapes
 
-def clip(coordinates, window):
+def clip(coordinates, window, close_shape):
     clipped_coordinates = []
     last_point = coordinates[0][0], coordinates[0][1]
     for i in range(1, len(coordinates)):
@@ -15,13 +15,14 @@ def clip(coordinates, window):
         clipped_coordinates.append(last_point)
         clipped_coordinates.append(next_point)
     # last point to first
-    next_point = [coordinates[0][0], coordinates[0][1]]
-    last_point = [coordinates[-1][0], coordinates[-1][1]]
-    discart = should_discart(last_point, next_point, window)
-    if not discart:
-        last_point, next_point = clip_points(last_point, next_point, window)
-        clipped_coordinates.append(last_point)
-        clipped_coordinates.append(next_point)
+    if close_shape:
+        next_point = [coordinates[0][0], coordinates[0][1]]
+        last_point = [coordinates[-1][0], coordinates[-1][1]]
+        discart = should_discart(last_point, next_point, window)
+        if not discart:
+            last_point, next_point = clip_points(last_point, next_point, window)
+            clipped_coordinates.append(last_point)
+            clipped_coordinates.append(next_point)
     return clipped_coordinates
 
 def clip_points(p1, p2, window):

@@ -109,13 +109,16 @@ class control:
         obj = self.obj_list[obj_name]
         coordinates = copy.deepcopy(self.ppc_list[obj_name])
         # clipping:
-        clipped_coordinates = clip.clip(coordinates, self.window)
+        clipped_coordinates = clip.clip(coordinates, self.window, obj.closed_shape)
         # if at least one point
         if (clipped_coordinates):
             clipped_coordinates = self.to_viewport(clipped_coordinates, drawing_area)
-            self.draw_coordinates(clipped_coordinates, drawing_area, context, obj.rgba)
+            self.draw_coordinates(
+                clipped_coordinates, drawing_area, context,
+                obj.rgba, obj.closed_shape
+            )
 
-    def draw_coordinates(self, coordinates, drawing_area, context, rgba=(0,0,0,1)):
+    def draw_coordinates(self, coordinates, drawing_area, context, rgba=(0,0,0,1), close_shape=True):
 
         # getting screen convertions and then viewport convertions
 
@@ -130,7 +133,7 @@ class control:
         context.move_to(coordinates[0][0], coordinates[0][1])
         last_point = coordinates[0][0], coordinates[0][1]
 
-        # all points in middle  
+        # all points in middle
         for i in range(1, len(coordinates)):
             last_point = coordinates[i-1][0], coordinates[i-1][1]
             next_point = coordinates[i][0], coordinates[i][1]
@@ -139,10 +142,11 @@ class control:
             context.line_to(next_point[0], next_point[1])
             # print(str(coordinates[i][0]) + " " + str(coordinates[i][1]))
         # last point to first
-        next_point = (coordinates[0][0], coordinates[0][1])
-        last_point = coordinates[-1][0], coordinates[-1][1]
-        context.move_to(last_point[0], last_point[1])
-        context.line_to(next_point[0], next_point[1])
+        if close_shape:
+            next_point = (coordinates[0][0], coordinates[0][1])
+            last_point = coordinates[-1][0], coordinates[-1][1]
+            context.move_to(last_point[0], last_point[1])
+            context.line_to(next_point[0], next_point[1])
 
         context.stroke()
 
@@ -184,7 +188,7 @@ class control:
         elif shape == "Poligono":
             obj = shapes.polygon(coordinates, rgba)
         else:
-            pass
+            obj = shapes.Bezier(coordinates, step, rgba)
 
         # add to display file
         self.obj_list[name] = obj
