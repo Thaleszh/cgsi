@@ -28,7 +28,10 @@ class Bezier(shape):
             [1, 0, 0, 0]
         ])
         self.coordinates = []
-        self.calculate_curve(coordinates, step)
+        for i in range(1, len(coordinates), 3):
+            points = [coordinates[x] for x in range(i-1, i+3)]
+            self.calculate_curve(points, step)
+
         self.rgba = rgba
         self.closed_shape = False
 
@@ -38,7 +41,7 @@ class Bezier(shape):
             point_x = self.calculate_point(i, points, 0)
             point_y = self.calculate_point(i, points, 1)
             self.coordinates.append([point_x, point_y])
-            i += 0.2
+            i += step
 
     def calculate_point(self, t, points, point_index):
         return (points[0][point_index]*(-(t*t*t) + 3*t*t - 3*t + 1) +

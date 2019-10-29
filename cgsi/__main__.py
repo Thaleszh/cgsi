@@ -1,3 +1,5 @@
+from textwrap import dedent
+
 import cairo
 from gi.repository import Gtk
 
@@ -216,11 +218,18 @@ class UI:
         else:
             shape = "Bezier"
             coordinates = self.read_coordinates('bezier')
-            if len(coordinates) % 4 != 0:
+            if len(coordinates) < 4 or (len(coordinates) - 4) % 3 != 0:
                 return self.show_warning(
-                    'Número errado de pontos',
-                    'Cada curva é composta de 4 pontos. \
-                    Insira uma quantidade múltipla de 4.'
+                    'Número de coordenadas incorreto',
+                    dedent(
+                        '''
+                        Uma curva de Bezier possui no mínimo 4 pontos. 
+                        Para adicionar mais curvas com continuidade 0,
+                        adicione os 4 pontos da primeira curva e depois os
+                        pontos 2, 3 e 4 das próximas, o ponto 1 será o ponto
+                        4 da curva anterior.
+                        '''
+                    )
                 )
 
             step_entry = self.builder.get_object("step_bezier")
