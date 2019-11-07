@@ -115,7 +115,7 @@ class control:
             clipped_coordinates = self.to_viewport(clipped_coordinates, drawing_area)
             self.draw_coordinates(
                 clipped_coordinates, drawing_area, context,
-                obj.rgba, obj.closed_shape
+                obj.rgba, False
             )
 
     def draw_coordinates(self, coordinates, drawing_area, context, rgba=(0,0,0,1), close_shape=True):
