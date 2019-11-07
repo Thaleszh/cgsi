@@ -9,6 +9,11 @@ def clip(coordinates, window, close_shape):
         next_point = [coordinates[i][0], coordinates[i][1]]
         discart = should_discart(last_point, next_point, window)
         if discart:
+            # if there's already a coordinate we need to go through
+            # the borders
+            if clipped_coordinates:
+                next_point = point_border(next_point, window)
+                clipped_coordinates.append(next_point)
             continue
 
         last_point, next_point = clip_points(last_point, next_point, window)
@@ -62,11 +67,7 @@ def window_intersection(point, point_area_code, m, window):
         x = point[0] + 1/m * (y - point[1])
         return [x, y]
 
-    x_min = -window.get_width()/2
-    x_max = window.get_width()/2
-    y_min = -window.get_height()/2
-    y_max = window.get_height()/2
-    # bottm left
+    x_min, y_min, x_max, y_max = window.limits()    # bottm left
     if point_area_code == 5:
         y = -window.get_height()/2
         x = point[0] + 1/m * (y - point[1])
@@ -124,10 +125,7 @@ def should_discart(p1, p2, window):
 
 def point_area_code(point, window):
     area_code = 0
-    x_min = -window.get_width()/2
-    x_max = window.get_width()/2
-    y_min = -window.get_height()/2
-    y_max = window.get_height()/2
+    x_min, y_min, x_max, y_max = window.limits()
 
     if point[0] < x_min:
         area_code = area_code | 1
@@ -139,3 +137,34 @@ def point_area_code(point, window):
         area_code = area_code | 8
 
     return area_code
+
+
+def point_border(point, window):
+    x_min, y_min, x_max, y_max = window.limits()
+    area_code = point_area_code(point, window)
+
+    # left
+    if area_code == 1:
+        return [x_min, point[1]]
+    # up
+    if area_code == 8:
+        return [point[0], y_max]
+    # right
+    if area_code == 2:
+        return [x_max, point[1]]
+    # down
+    if area_code == 4:
+        return [point[0], y_min]
+
+    # bottm left
+    if area_code == 5:
+        return [x_min, y_min]
+    # top left
+    if area_code == 9:
+        return [x_min, y_max]
+    # top right
+    if area_code == 10:
+        return [x_max, y_max]
+    # bottom right
+    if area_code == 6:
+        return [x_max, y_min]

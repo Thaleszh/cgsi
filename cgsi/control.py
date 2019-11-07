@@ -89,9 +89,9 @@ class control:
                 self.ppc_list[obj] = coordinates
 
     def draw_all(self, drawing_area, context):
-        self.draw_border(drawing_area, context)
         for obj in self.obj_list: # future change to check alter egos
             self.draw_shape(obj, drawing_area, context)
+        self.draw_border(drawing_area, context)
 
     def draw_border(self, drawing_area, context):
         max_height = drawing_area.get_allocation().height
@@ -155,10 +155,7 @@ class control:
         xv_min = 0
         yv_max = drawing_area.get_allocation().height - 20
         yv_min = 0
-        xw_min = -self.window.get_width()/2
-        xw_max = self.window.get_width()/2
-        yw_min = -self.window.get_height()/2
-        yw_max = self.window.get_height()/2
+        xw_min, yw_min, xw_max, yw_max =self.window.limits()
 
         for i, coordinate in enumerate(coordinates):
             xw = coordinate[0]
