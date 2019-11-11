@@ -50,8 +50,8 @@ class Bezier(shape):
                 points[2][point_index]*(-3*t*t*t + 3*t*t) +
                 points[3][point_index]*(t*t*t))
 
-class B-spline(shape):
-    def __init(self, control_points, n_points, rgba=(0,0,0,1))
+class Bspline(shape):
+    def __init(self, control_points, n_points, rgba=(0,0,0,1)):
         self.rgba = rgba
         self.closed_shape = false
         proj_x = np.array([v.x for v in control_points], dtype=float)
