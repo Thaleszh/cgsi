@@ -215,7 +215,7 @@ class UI:
             coordinates = self.read_coordinates('poli')
             self.control.create_shape(name, shape, coordinates, color_rgba)
 
-        else:
+        elif page == 3:
             shape = "Bezier"
             coordinates = self.read_coordinates('bezier')
             if len(coordinates) < 4 or (len(coordinates) - 4) % 3 != 0:
@@ -233,6 +233,21 @@ class UI:
                 )
 
             step_entry = self.builder.get_object("step_bezier")
+            step = float(step_entry.get_text())
+            self.control.create_shape(
+                name, shape, coordinates, color_rgba, step
+            )
+
+        else:
+            shape = 'Spline'
+            coordinates = self.read_coordinates('spline')
+            if len(coordinates) < 4:
+                return self.show_warning(
+                    'Número de coordenadas incorreto',
+                    'Splines precisam de pelo menos 4 pontos de controle'
+                )
+
+            step_entry = self.builder.get_object("step_spline")
             step = float(step_entry.get_text())
             self.control.create_shape(
                 name, shape, coordinates, color_rgba, step
