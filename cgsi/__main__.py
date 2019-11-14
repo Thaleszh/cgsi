@@ -38,6 +38,8 @@ class UI:
         self.list.append(["start 1", "Poligono"])
         self.control.create_shape("start 2", "Poligono", [ [100, 200],[150, 200], [150, 250], [100,250]])
         self.list.append(["start 2", "Poligono"])
+        self.control.create_shape("start 3", "Linha", [ [10, 10],[50, 50] ])
+        self.list.append(["start 3", "Linha"])
 
         self.control.scale_object("start 1", 2, 1)
         self.control.rotate_object("start 1", 90, trans.ROTATE_AROUND_SELF)
