@@ -51,11 +51,11 @@ class Bezier(shape):
                 points[3][point_index]*(t*t*t))
 
 class Bspline(shape):
-    def __init(self, control_points, rgba=(0,0,0,1)):
+    def __init__(self, control_points, rgba=(0,0,0,1)):
         self.rgba = rgba
-        self.closed_shape = false
-        proj_x = np.array([v.x for v in control_points], dtype=float)
-        proj_y = np.array([v.y for v in control_points], dtype=float)
+        self.closed_shape = False
+        proj_x = np.array([v[0] for v in control_points], dtype=float)
+        proj_y = np.array([v[1] for v in control_points], dtype=float)
         self.coordinates = []
         for i in range(0, len(control_points) - 3):
             Gbs_x = proj_x[i:i + 4]
