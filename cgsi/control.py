@@ -187,8 +187,10 @@ class control:
             obj = shapes.line(coordinates, rgba)
         elif shape == "Poligono":
             obj = shapes.polygon(coordinates, rgba)
-        else:
+        elif shape == "Bezier":
             obj = shapes.Bezier(coordinates, step, rgba)
+        else:
+            obj = shapes.Bspline(coordinates, rgba)
 
         # add to display file
         self.obj_list[name] = obj

@@ -51,7 +51,7 @@ class Bezier(shape):
                 points[3][point_index]*(t*t*t))
 
 class Bspline(shape):
-    def __init(self, control_points, n_points, rgba=(0,0,0,1)):
+    def __init(self, control_points, rgba=(0,0,0,1)):
         self.rgba = rgba
         self.closed_shape = false
         proj_x = np.array([v.x for v in control_points], dtype=float)
@@ -64,6 +64,7 @@ class Bspline(shape):
             Cx = self.bspline_matrix() @ Gbs_x
             Cy = self.bspline_matrix() @ Gbs_y
 
+            n_points = len(control_points)
             Dx = self.fd_matrix(1.0 / n_points) @ Cx
             Dy = self.fd_matrix(1.0 / n_points) @ Cy
 
