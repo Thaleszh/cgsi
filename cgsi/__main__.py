@@ -249,10 +249,8 @@ class UI:
                     'Splines precisam de pelo menos 4 pontos de controle'
                 )
 
-            step_entry = self.builder.get_object("step_spline")
-            step = float(step_entry.get_text())
             self.control.create_shape(
-                name, shape, coordinates, color_rgba, step
+                name, shape, coordinates, color_rgba
             )
 
         self.list.append([name, shape])
